@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"authService/internal/payload"
 	"authService/internal/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -14,16 +15,12 @@ func NewAuthHandler(r *gin.Engine, service *services.AuthService) {
 	handler := &AuthHandler{service: service}
 
 	r.POST("/auth/register", handler.Register)
-	r.POST("/auth/token/:id", handler.IssueTokens)
+	r.GET("/auth/token/:id", handler.IssueTokens)
 	r.POST("/auth/refresh/:id", handler.RefreshTokens)
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	var request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
+	var request payload.RegisterRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -58,17 +55,15 @@ func (h *AuthHandler) IssueTokens(ctx *gin.Context) {
 }
 
 func (h *AuthHandler) RefreshTokens(ctx *gin.Context) {
-	var requestBody struct {
-		RefreshToken string `json:"refresh_token"`
-	}
-	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+	var request payload.RefreshTokensRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
 	userID := ctx.Param("id")
 
-	isValid, err := h.service.ValidateRefreshToken(userID, requestBody.RefreshToken)
+	isValid, err := h.service.ValidateRefreshToken(userID, request.RefreshToken)
 	if err != nil || !isValid {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
 		return
