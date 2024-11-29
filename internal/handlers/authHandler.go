@@ -63,22 +63,12 @@ func (h *AuthHandler) RefreshTokens(ctx *gin.Context) {
 
 	userID := ctx.Param("id")
 
-	isValid, err := h.service.ValidateRefreshToken(userID, request.RefreshToken)
-	if err != nil || !isValid {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
-		return
-	}
-
 	clientIP := ctx.ClientIP()
-	tokens, err := h.service.GenerateTokens(userID, clientIP)
+	tokens, err := h.service.RefreshTokens(userID, request.RefreshToken, clientIP)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate tokens"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tokens"})
 		return
 	}
 
-	if err = h.service.UpdateRefreshToken(userID, tokens.RefreshToken); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Token update failed"})
-		return
-	}
 	ctx.JSON(http.StatusOK, tokens)
 }

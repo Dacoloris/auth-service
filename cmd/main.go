@@ -22,7 +22,9 @@ func main() {
 	}
 
 	authRepo := repositories.NewAuthRepository(db)
-	authService := services.NewAuthService(authRepo, cfg.JwtSecret)
+
+	mockNotifier := &EmailNotifierMock{}
+	authService := services.NewAuthService(authRepo, mockNotifier, cfg.JwtSecret)
 
 	router := gin.Default()
 	handlers.NewAuthHandler(router, authService)

@@ -25,13 +25,13 @@ func (r *AuthRepository) GetUserByID(userID string) (*models.User, error) {
 	return &user, nil
 }
 
-func (r *AuthRepository) StoreRefreshToken(userID, token string) error {
-	refreshToken := models.RefreshToken{UserID: userID, Token: token}
+func (r *AuthRepository) StoreRefreshToken(userID, token, ip string) error {
+	refreshToken := models.RefreshToken{UserID: userID, Token: token, Ip: ip}
 	return r.db.Create(&refreshToken).Error
 }
 
-func (r *AuthRepository) UpdateRefreshToken(userID, token string) error {
-	return r.db.Exec("update refresh_tokens set token = ? where user_id = ?", token, userID).Error
+func (r *AuthRepository) UpdateRefreshToken(userID, token, ip string) error {
+	return r.db.Exec("update refresh_tokens set token = ?, ip = ? where user_id = ?", token, ip, userID).Error
 }
 
 func (r *AuthRepository) GetHashedToken(userID string) (string, error) {

@@ -4,6 +4,7 @@ type User struct {
 	ID       string `gorm:"primaryKey"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	IP       string `json:"ip"`
 }
 
 type Tokens struct {
@@ -14,4 +15,5 @@ type Tokens struct {
 type RefreshToken struct {
 	UserID string `json:"user_id"`
 	Token  string `json:"token"`
+	Ip     string `json:"ip"`
 }
