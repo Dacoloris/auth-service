@@ -6,6 +6,7 @@ import (
 	"authService/internal/models"
 	"authService/internal/repositories"
 	"authService/internal/services"
+	"authService/mock"
 	"authService/pkg/db"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -23,8 +24,8 @@ func main() {
 
 	authRepo := repositories.NewAuthRepository(db)
 
-	mockNotifier := &EmailNotifierMock{}
-	authService := services.NewAuthService(authRepo, mockNotifier, cfg.JwtSecret)
+	mockEmailNotifier := &mock.MockEmailNotifier{}
+	authService := services.NewAuthService(authRepo, mockEmailNotifier, cfg.JwtSecret)
 
 	router := gin.Default()
 	handlers.NewAuthHandler(router, authService)
