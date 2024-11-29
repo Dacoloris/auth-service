@@ -3,6 +3,8 @@ package handlers
 import (
 	"authService/internal/payload"
 	"authService/internal/services"
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -66,8 +68,13 @@ func (h *AuthHandler) RefreshTokens(ctx *gin.Context) {
 	clientIP := ctx.ClientIP()
 	tokens, err := h.service.RefreshTokens(userID, request.RefreshToken, clientIP)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tokens"})
-		return
+		if errors.Is(err, fmt.Errorf(services.ErrTokenNotValid)) {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Token not valid"})
+			return
+		} else {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update tokens"})
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, tokens)

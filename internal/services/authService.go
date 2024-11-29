@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const ErrTokenNotValid = "token not valid"
+
 type EmailNotifier interface {
 	SendWarningEmail(email string, oldIP string, newIP string) error
 }
@@ -89,7 +91,7 @@ func (s *AuthService) RefreshTokens(userID string, refreshToken string, clientIP
 	if err != nil {
 		return models.Tokens{}, err
 	} else if !ok {
-		return models.Tokens{}, fmt.Errorf("not valid token")
+		return models.Tokens{}, fmt.Errorf(ErrTokenNotValid)
 	}
 
 	user, err := s.repo.GetUserByID(userID)
